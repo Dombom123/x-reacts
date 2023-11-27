@@ -9,52 +9,7 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from moviepy.video.compositing.concatenate import concatenate_videoclips
 import numpy as np
 from drive_manager import FirebaseManager
-import pyktok as pyk
-import pandas as pd
 import streamlit as st
-# Use file_uploader to allow the user to upload a video
-uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
-
-if uploaded_file is not None:
-    # Save the uploaded file to a temporary location
-    with open('temp_video.mp4', 'wb') as f:
-        f.write(uploaded_file.read())
-    path_to_video = 'temp_video.mp4'
-# tiktok test url: https://www.tiktok.com/@gala.chekh/video/7284684924202798354?is_from_webapp=1&sender_device=pc
-# def get_user_input():
-#     # ask if user wants local file or tiktok url input
-#     print("Please select the input type:")
-#     print("1. Local file")
-#     print("2. Tik Tok url")
-#     # get the user input
-#     user_input = input("Please enter your choice: ")
-#     # check if the user input is valid
-#     if user_input not in ["1", "2"]:
-#         raise ValueError("Invalid input. Please enter 1 or 2.")
-#     # if user wants to use local file
-#     if user_input == "1":
-#         path_to_video = input("Please enter the path to the video file: ")
-#         # check if the file exists
-#         if not os.path.exists(path_to_video):
-#             raise FileNotFoundError(f"The file {path_to_video} does not exist.")
-#         return path_to_video
-#     # if user wants to use tik tok url
-#     if user_input == "2":
-
-#         url = input("Please enter the tik tok url: ")
-
-#         # Extract the account name and video ID from the URL
-#         account_name, video_id = url.split('/')[3], url.split('/')[5].split('?')[0]
-
-#         # Construct the filename and path to the video
-#         video_filename = f"{account_name}_video_{video_id}.mp4"
-#         video_directory = os.getcwd()  # or the directory where the videos are saved
-#         path_to_video = os.path.join(video_directory, video_filename)
-
-#         # Download the video
-#         pyk.save_tiktok(url, True, 'video_data.csv', 'chrome')
-
-#         return path_to_video
 
 def read_frames_from_video(path_to_video):
     # Check if the video file exists
@@ -73,29 +28,24 @@ def read_frames_from_video(path_to_video):
     video.release()
     return base64Frames
 
-def generate_text_from_frames(base64Frames):
+def generate_text_from_frames(path_to_video, base64Frames):
 
     client = OpenAI()
-    # read data from csv file and store it in a variable
-    # Load the data from the CSV file
-    data = pd.read_csv('video_data.csv')
-
-    # Access the last row
-    last_row = data.iloc[-1]
-
-    # Initialize meta_data as an empty string
-    meta_data = ""
-
-    # Print a string with all the header keys and corresponding values and store it in meta_data
-    for key, value in last_row.items():
-        print(f"{key}: {value}")
-        meta_data += f"{key}: {value}\n"  # append to meta_data and add a newline character
-
+    # Get the audio from the video
+    audio = AudioFileClip(path_to_video)
+    audio.write_audiofile("speech.mp3")
+    audio_file = open("speech.mp3", "rb")
+    transcript = client.audio.transcriptions.create(
+    model="whisper-1", 
+    file=audio_file
+    )
+    meta_data = f"{transcript}"
     # Now meta_data contains all key-value pairs
     print(meta_data)
+    st.write(meta_data)
     
     video_length_in_seconds = len(base64Frames) / 30
-    total_frames = len(base64Frames)
+    st.write(video_length_in_seconds)
     max_frames = 20
     frame_divider = len(base64Frames) // max_frames
 
@@ -105,7 +55,7 @@ def generate_text_from_frames(base64Frames):
             "content": [
                 f"""Wir spielen ein Rollenspiel Sag einen Satz zu den Bildern als wärst du Satan, 
                 ein fieser und witziger Instagramteufel... {video_length_in_seconds} sekunden... 
-                Diese Metadaten des Videos helfen dir: {meta_data}""",
+                Das ist das Audiotranskript des Videos: {meta_data}""",
                 *map(lambda x: {"image": x, "resize": 768}, base64Frames[0::frame_divider]),
             ],
         },
@@ -113,7 +63,7 @@ def generate_text_from_frames(base64Frames):
     params = {
         "model": "gpt-4-vision-preview",
         "messages": PROMPT_MESSAGES,
-        "max_tokens": 500,
+        "max_tokens": 100,
     }
     result = client.chat.completions.create(**params)
     return result.choices[0].message.content
@@ -140,6 +90,7 @@ def generate_audio_from_text(text):
         f.write(audio)
         f.close()
     print("Audio saved to audio.mp3")
+    st.write("Audio saved to audio.mp3")
     filepath = 'audio.mp3'
 
     return filepath
@@ -170,6 +121,7 @@ def generate_video_from_audio(audio_url):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
+        
         "authorization": "Basic Wkc5dGFXNXBhMEJrY21sMlpXSmxkR0V1WkdVOjBmTkpBdXRTZi04alRjY0ltQkFzWQ=="
     }
 
@@ -189,6 +141,7 @@ def generate_video_from_audio(audio_url):
             break
 
         print("Waiting for result_url...")
+        st.write("Waiting for result_url...")
         time.sleep(5)  # wait for 5 seconds before retrying
 
     # Download from url
@@ -237,23 +190,46 @@ def assemble_video(gen_path, original_video_path):
     # Write the final video to a file
     composite_video.write_videofile('final.mp4')
 
-# def main():
+def main():
 
-#     original_video_path = get_user_input()
-#     base64Frames = read_frames_from_video(original_video_path)
-#     text = generate_text_from_frames(base64Frames)
-#     print(text)
-#     audio_path = generate_audio_from_text(text)
-#     print(audio_path)
+        # Use file_uploader to allow the user to upload a video
+    st.markdown("# Upload Video")
+    uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
 
+    if uploaded_file is not None:
+        with open('temp_video.mp4', 'wb') as f:
+            f.write(uploaded_file.read())
+        with st.spinner('Processing the video...'):
+            path_to_video = 'temp_video.mp4'
+            base64Frames = read_frames_from_video(path_to_video)
+            text = generate_text_from_frames(path_to_video, base64Frames)
+            st.markdown("## Generated Text")
+            st.write(text)
+            audio_path = generate_audio_from_text(text)
+            st.markdown("## Audio Path")
+            st.write(audio_path)
 
-#     drive_manager = FirebaseManager('x-reacts')
-#     audio_url = drive_manager.upload_file(audio_path, 'audio2.mp3')
-#     print(audio_url)
+            drive_manager = FirebaseManager('x-reacts')
+            audio_url = drive_manager.upload_file(audio_path, 'audio2.mp3')
+            st.markdown("## Audio URL")
+            st.write(audio_url)
 
-#     gen_video_path = generate_video_from_audio(audio_url)
-#     print(gen_video_path)
-#     assemble_video(gen_video_path, original_video_path)
+            gen_video_path = generate_video_from_audio(audio_url)
+            st.markdown("## Generated Video Path")
+            st.write(gen_video_path)
+            assemble_video(gen_video_path, path_to_video)
+            st.markdown("## Processed Video")
+            video_file = open('final.mp4', 'rb')
 
-# if __name__ == "__main__":
-#     main()
+            video_bytes = video_file.read()
+            st.markdown(
+                f"""
+                <video width="320" height="240" controls>
+                    <source src="data:video/mp4;base64,{base64.b64encode(video_bytes).decode()}" type="video/mp4">
+                </video>
+                """,
+                unsafe_allow_html=True,
+            )
+
+if __name__ == "__main__":
+    main()

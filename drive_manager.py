@@ -1,16 +1,18 @@
 import datetime
 import firebase_admin
 from firebase_admin import credentials, storage
+import streamlit as st
+
 
 class FirebaseManager:
     def __init__(self, bucket_name):
 
-            # Path to your service account key file
-        service_account_key_path = 'x-reacts-firebase-adminsdk-ofq0u-1f2c412804.json'
-
+        # use secrets to get the service account key path
+        
+        
         # Initialize the Firebase app with the service account
         if not firebase_admin._apps:
-            cred = credentials.Certificate(service_account_key_path)
+            cred = credentials.Certificate(st.secrets["firebase_config"])
             firebase_admin.initialize_app(cred, {
                 'storageBucket': f'{bucket_name}.appspot.com'
             })
