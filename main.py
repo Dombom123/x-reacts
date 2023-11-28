@@ -118,11 +118,12 @@ def generate_video_from_audio(audio_url):
         },
         "source_url": "https://i.ibb.co/b6S8DYJ/Bildschirmfoto-2023-11-17-um-10-22-22-removebg-preview.png"
     }
+    authorization = st.secrets["d-id"]["authorization"]
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        
-        "authorization": "Basic Wkc5dGFXNXBhMEJrY21sMlpXSmxkR0V1WkdVOjBmTkpBdXRTZi04alRjY0ltQkFzWQ=="
+
+        "authorization": authorization
     }
 
     response = requests.post(url, json=payload, headers=headers)
