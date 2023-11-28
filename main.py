@@ -40,10 +40,10 @@ def generate_text_from_frames(prompt, path_to_video, base64Frames):
     model="whisper-1", 
     file=audio_file
     )
-    meta_data = f"{transcript}"
-    text_content = meta_data['text']
+
+    text_content = transcript['text']
     print(text_content)
-    print(meta_data)
+
     st.subheader("Transcript")
     st.write(text_content)
     
@@ -57,7 +57,7 @@ def generate_text_from_frames(prompt, path_to_video, base64Frames):
             "role": "user",
             "content": [
                 f"""{prompt}. Das Video ist {video_length_in_seconds} Sekunden lang.
-                Das ist das Audiotranskript des Videos: {meta_data}. Das sind Frames aus dem Video:""",
+                Das ist das Audiotranskript des Videos: {text_content}. Das sind Frames aus dem Video:""",
                 
                 *map(lambda x: {"image": x, "resize": 768}, base64Frames[0::frame_divider]),
             ],
