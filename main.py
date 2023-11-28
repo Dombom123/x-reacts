@@ -43,12 +43,11 @@ def generate_text_from_frames(path_to_video, base64Frames):
     meta_data = f"{transcript}"
     # Now meta_data contains all key-value pairs
     print(meta_data)
-    st.write("# Transcript")
+    st.subheader("Transcript")
     st.write(meta_data)
     
     video_length_in_seconds = len(base64Frames) / 30
-    st.write("# Video Length")
-    st.write(video_length_in_seconds)
+    st.write(f"Video Length: {video_length_in_seconds} seconds")
     max_frames = 20
     frame_divider = len(base64Frames) // max_frames
 
@@ -214,12 +213,12 @@ def main():
     st.title("X-Reacts Video Generation")
     st.markdown(
         """
-        This app generates a video from a video uploaded by the user.
+        This app generates a **reaction video** from a video uploaded by the user.
         """
     )
 
     # Use file_uploader to allow the user to upload a video
-    st.markdown("# Upload Video")
+    st.subheader("Upload Video")
     uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
 
     if uploaded_file is not None:
@@ -229,13 +228,14 @@ def main():
             path_to_video = 'temp_video.mp4'
             base64Frames = read_frames_from_video(path_to_video)
             text = generate_text_from_frames(path_to_video, base64Frames)
-            st.markdown("# Voiceover Text")
+            st.subheader("Voiceover Text")
             st.write(text)
             audio_path = generate_audio_from_text(text)           
             audio_url = upload_audio_to_did(audio_path)
             gen_video_path = generate_video_from_audio(audio_url)
             assemble_video(gen_video_path, path_to_video, audio_path)
-            st.markdown("## Generated Video")
+            st.success('Done!')
+            st.subheader("Generated Video")
             video_file = open('final.mp4', 'rb')
 
             video_bytes = video_file.read()
