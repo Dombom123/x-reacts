@@ -211,7 +211,7 @@ def main():
     # Initialize Streamlit
     st.set_page_config(page_title="X-Reacts", page_icon="🎥")
 
-    st.title("X-Reacts Video Generation")
+    st.title("Reactions from Hell")
     st.markdown(
         """
         This app generates **a reaction video** from a video uploaded by the user.
