@@ -4,11 +4,12 @@ import base64
 import time
 import requests
 from openai import OpenAI
-from moviepy.editor import VideoFileClip, CompositeVideoClip, AudioFileClip, concatenate_audioclips, CompositeAudioClip
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from moviepy.editor import VideoFileClip, CompositeVideoClip, AudioFileClip, CompositeAudioClip
+
+from moviepy.audio.fx.all import volumex
 from moviepy.video.compositing.concatenate import concatenate_videoclips
 import numpy as np
-from drive_manager import FirebaseManager
+
 import streamlit as st
 
 def read_frames_from_video(path_to_video):
@@ -42,9 +43,11 @@ def generate_text_from_frames(path_to_video, base64Frames):
     meta_data = f"{transcript}"
     # Now meta_data contains all key-value pairs
     print(meta_data)
+    st.write("# Transcript")
     st.write(meta_data)
     
     video_length_in_seconds = len(base64Frames) / 30
+    st.write("# Video Length")
     st.write(video_length_in_seconds)
     max_frames = 20
     frame_divider = len(base64Frames) // max_frames
@@ -170,11 +173,17 @@ def upload_audio_to_did(audio_path):
     return response.json()["url"]
 
 
-def assemble_video(gen_path, original_video_path):
+from moviepy.editor import AudioFileClip
 
-    # Load the original video and the avatar video
+def assemble_video(gen_path, original_video_path, audio_path):
+
+    # Load the original video, the avatar video, and the audio
     original_video = VideoFileClip(original_video_path)
     avatar_video = VideoFileClip(gen_path)
+    audio = AudioFileClip(audio_path)
+
+    # Lower the volume of the original video
+    original_video = original_video.volumex(0.1)  # Adjust the volume level as needed
 
     # Check if the avatar video is longer than the original video
     if avatar_video.duration > original_video.duration:
@@ -192,15 +201,8 @@ def assemble_video(gen_path, original_video_path):
     # Overlay the avatar video on the original video
     composite_video = CompositeVideoClip([original_video, avatar_video])
 
-    # Extract the audio from the original video and the avatar video
-    original_audio = original_video.audio.volumex(0.01)  # reduce the volume to 1%
-    avatar_audio = avatar_video.audio
-
-    # Overlay the audio clips
-    overlaid_audio = CompositeAudioClip([original_audio, avatar_audio])
-
-    # Set the audio of the composite video to the overlaid audio
-    composite_video = composite_video.set_audio(overlaid_audio)
+    # Set the audio of the composite video to the audio from audio.mp3
+    composite_video = composite_video.set_audio(audio)
 
     # Write the final video to a file
     composite_video.write_videofile('final.mp4')
@@ -227,22 +229,13 @@ def main():
             path_to_video = 'temp_video.mp4'
             base64Frames = read_frames_from_video(path_to_video)
             text = generate_text_from_frames(path_to_video, base64Frames)
-            st.markdown("## Generated Text")
+            st.markdown("# Voiceover Text")
             st.write(text)
-            audio_path = generate_audio_from_text(text)
-            st.markdown("## Audio Path")
-            st.write(audio_path)
-
-            
+            audio_path = generate_audio_from_text(text)           
             audio_url = upload_audio_to_did(audio_path)
-            st.markdown("## Audio URL")
-            st.write(audio_url)
-
             gen_video_path = generate_video_from_audio(audio_url)
-            st.markdown("## Generated Video Path")
-            st.write(gen_video_path)
-            assemble_video(gen_video_path, path_to_video)
-            st.markdown("## Processed Video")
+            assemble_video(gen_video_path, path_to_video, audio_path)
+            st.markdown("## Generated Video")
             video_file = open('final.mp4', 'rb')
 
             video_bytes = video_file.read()
