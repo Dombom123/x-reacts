@@ -12,7 +12,8 @@ class FirebaseManager:
         
         # Initialize the Firebase app with the service account
         if not firebase_admin._apps:
-            cred = credentials.Certificate(st.secrets["firebase_config"])
+            cred_dict = st.secrets["firebase_config"]
+            cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred, {
                 'storageBucket': f'{bucket_name}.appspot.com'
             })
