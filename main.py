@@ -41,7 +41,7 @@ def generate_text_from_frames(prompt, path_to_video, base64Frames):
     file=audio_file
     )
 
-    text_content = transcript['text']
+    text_content = transcript.text
     print(text_content)
 
     st.subheader("Transcript")
