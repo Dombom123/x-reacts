@@ -194,7 +194,7 @@ def assemble_video(gen_path, original_video_path):
 
 def main():
     # Initialize Streamlit
-    st.set_page_config(layout="wide", page_title="Video Generation", page_icon="🎥")
+    st.set_page_config(page_title="Video Generation", page_icon="🎥")
 
     st.title("Video Generation")
     st.markdown(
