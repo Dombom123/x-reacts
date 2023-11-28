@@ -220,13 +220,11 @@ def main():
 
 
     # Use file_uploader to allow the user to upload a video
-    st.subheader("Upload Video")
-    uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
 
     default_prompt = """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, 
-                    ein fieser und witziger Instagramteufel. """
+    ein fieser und witziger Instagramteufel. """
 
-    prompt = st.text_input('Enter your prompt', default_prompt)
+    prompt = st.text_area('Enter your prompt', default_prompt)
 
     uploaded_file = st.file_uploader("Choose a video file")
 
