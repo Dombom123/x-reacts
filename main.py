@@ -69,10 +69,11 @@ def generate_text_from_frames(path_to_video, base64Frames):
     return result.choices[0].message.content
 
 def generate_audio_from_text(text):
+    api_key = st.secrets["openai"]["OPENAI_API_KEY"]
     response = requests.post(
         "https://api.openai.com/v1/audio/speech",
         headers={
-            "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
+            "Authorization": f"Bearer {api_key}",
         },
         json={
             "model": "tts-1-1106",
@@ -192,8 +193,17 @@ def assemble_video(gen_path, original_video_path):
     composite_video.write_videofile('final.mp4')
 
 def main():
+    # Initialize Streamlit
+    st.set_page_config(layout="wide", page_title="Video Generation", page_icon="🎥")
 
-        # Use file_uploader to allow the user to upload a video
+    st.title("Video Generation")
+    st.markdown(
+        """
+        This app generates a video from a video uploaded by the user.
+        """
+    )
+
+    # Use file_uploader to allow the user to upload a video
     st.markdown("# Upload Video")
     uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
 
