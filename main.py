@@ -41,9 +41,11 @@ def generate_text_from_frames(prompt, path_to_video, base64Frames):
     file=audio_file
     )
     meta_data = f"{transcript}"
+    text_content = meta_data['text']
+    print(text_content)
     print(meta_data)
     st.subheader("Transcript")
-    st.write(meta_data)
+    st.write(text_content)
     
     video_length_in_seconds = len(base64Frames) / 30
     st.write(f"Video Length: {video_length_in_seconds} seconds")
