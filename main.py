@@ -226,7 +226,7 @@ def main():
 
     prompt = st.text_area('Enter your prompt', default_prompt)
 
-    uploaded_file = st.file_uploader("Choose a video file")
+    uploaded_file = st.file_uploader("Choose a video file", type=['mp4'], key='video', help='Upload a video file')
 
     if st.button('Start generating') and uploaded_file is not None:
         with open('temp_video.mp4', 'wb') as f:
