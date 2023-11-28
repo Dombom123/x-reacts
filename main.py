@@ -29,7 +29,7 @@ def read_frames_from_video(path_to_video):
     video.release()
     return base64Frames
 
-def generate_text_from_frames(path_to_video, base64Frames):
+def generate_text_from_frames(prompt, path_to_video, base64Frames):
     api_key = st.secrets["openai"]["OPENAI_API_KEY"]
     client = OpenAI(api_key=api_key)
     # Get the audio from the video
@@ -55,9 +55,9 @@ def generate_text_from_frames(path_to_video, base64Frames):
         {
             "role": "user",
             "content": [
-                f"""Wir spielen ein Rollenspiel Sag einen Satz zu den Bildern als wärst du Satan, 
-                ein fieser und witziger Instagramteufel... {video_length_in_seconds} sekunden... 
-                Das ist das Audiotranskript des Videos: {meta_data}""",
+                f"""{prompt}. Das Video ist {video_length_in_seconds} Sekunden lang.
+                Das ist das Audiotranskript des Videos: {meta_data}. Das sind Frames aus dem Video:""",
+                
                 *map(lambda x: {"image": x, "resize": 768}, base64Frames[0::frame_divider]),
             ],
         },
@@ -213,7 +213,7 @@ def main():
     st.title("X-Reacts Video Generation")
     st.markdown(
         """
-        This app generates a **reaction video** from a video uploaded by the user.
+        This app generates **a reaction video** from a video uploaded by the user.
         """
     )
     st.image("header_img.jpg")
@@ -223,7 +223,14 @@ def main():
     st.subheader("Upload Video")
     uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
 
-    if uploaded_file is not None:
+    default_prompt = """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, 
+                    ein fieser und witziger Instagramteufel. """
+
+    prompt = st.text_input('Enter your prompt', default_prompt)
+
+    uploaded_file = st.file_uploader("Choose a video file")
+
+    if st.button('Start generating') and uploaded_file is not None:
         with open('temp_video.mp4', 'wb') as f:
             bar = st.progress(5)
             f.write(uploaded_file.read())
@@ -232,7 +239,7 @@ def main():
             bar.progress(10)
             base64Frames = read_frames_from_video(path_to_video)
             bar.progress(15)
-            text = generate_text_from_frames(path_to_video, base64Frames)
+            text = generate_text_from_frames(prompt, path_to_video, base64Frames)
             bar.progress(20)
             st.subheader("Voiceover Text")
             st.write(text)
