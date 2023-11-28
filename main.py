@@ -41,7 +41,6 @@ def generate_text_from_frames(prompt, path_to_video, base64Frames):
     file=audio_file
     )
     meta_data = f"{transcript}"
-    # Now meta_data contains all key-value pairs
     print(meta_data)
     st.subheader("Transcript")
     st.write(meta_data)
