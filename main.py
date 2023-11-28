@@ -11,7 +11,7 @@ from moviepy.video.compositing.concatenate import concatenate_videoclips
 import numpy as np
 
 import streamlit as st
-
+from PIL import Image
 def read_frames_from_video(path_to_video):
     # Check if the video file exists
     if not os.path.exists(path_to_video):
@@ -217,23 +217,32 @@ def main():
         """
     )
 
+
     # Use file_uploader to allow the user to upload a video
     st.subheader("Upload Video")
     uploaded_file = st.file_uploader("Please upload the video file", type=['mp4', 'mov'])
 
     if uploaded_file is not None:
         with open('temp_video.mp4', 'wb') as f:
+            bar = st.progress(5)
             f.write(uploaded_file.read())
         with st.spinner('Processing the video...'):
             path_to_video = 'temp_video.mp4'
+            bar.progress(10)
             base64Frames = read_frames_from_video(path_to_video)
+            bar.progress(15)
             text = generate_text_from_frames(path_to_video, base64Frames)
+            bar.progress(20)
             st.subheader("Voiceover Text")
             st.write(text)
-            audio_path = generate_audio_from_text(text)           
+            audio_path = generate_audio_from_text(text) 
+            bar.progress(30)          
             audio_url = upload_audio_to_did(audio_path)
+            bar.progress(50)
             gen_video_path = generate_video_from_audio(audio_url)
+            bar.progress(80)
             assemble_video(gen_video_path, path_to_video, audio_path)
+            bar.progress(100)
             st.success('Done!')
             st.subheader("Generated Video")
             video_file = open('final.mp4', 'rb')
