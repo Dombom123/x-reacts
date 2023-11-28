@@ -217,7 +217,7 @@ def main():
         This app generates **a reaction video** from a video uploaded by the user.
         """
     )
-    st.image("header_img.jpg")
+    st.image("header.png")
 
 
     # Use file_uploader to allow the user to upload a video
