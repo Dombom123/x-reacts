@@ -162,7 +162,7 @@ def upload_audio_to_did(audio_path):
     url = "https://api.d-id.com/audios"
     authorization = st.secrets["d-id"]["authorization"]
 
-    files = { "audio": ("speech.mp3", open("speech.mp3", "rb"), "audio/mpeg") }
+    files = { "audio": (audio_path, open(audio_path, "rb"), "audio/mpeg") }
     headers = {
         "accept": "application/json",
         "authorization": authorization
@@ -172,7 +172,7 @@ def upload_audio_to_did(audio_path):
     return response.json()["url"]
 
 
-from moviepy.editor import AudioFileClip
+
 
 def assemble_video(gen_path, original_video_path, audio_path):
 
