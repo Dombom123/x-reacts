@@ -155,6 +155,19 @@ def generate_video_from_audio(audio_url):
 
     return path
 
+def upload_audio_to_did(audio_path):
+
+    url = "https://api.d-id.com/audios"
+    authorization = st.secrets["d-id"]["authorization"]
+
+    files = { "audio": ("speech.mp3", open("speech.mp3", "rb"), "audio/mpeg") }
+    headers = {
+        "accept": "application/json",
+        "authorization": authorization
+    }
+
+    response = requests.post(url, files=files, headers=headers)
+    return response.json()["url"]
 
 
 def assemble_video(gen_path, original_video_path):
@@ -220,8 +233,8 @@ def main():
             st.markdown("## Audio Path")
             st.write(audio_path)
 
-            drive_manager = FirebaseManager('x-reacts')
-            audio_url = drive_manager.upload_file(audio_path, 'audio2.mp3')
+            
+            audio_url = upload_audio_to_did(audio_path)
             st.markdown("## Audio URL")
             st.write(audio_url)
 
