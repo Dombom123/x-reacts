@@ -4,3 +4,5 @@ moviepy
 numpy
 streamlit
 firebase-admin  # Assuming this is needed for FirebaseManager
+openai
+
