@@ -221,8 +221,7 @@ def main():
 
     # Use file_uploader to allow the user to upload a video
 
-    default_prompt = """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, 
-    ein fieser und witziger Instagramteufel. """
+    default_prompt = """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, ein fieser und witziger Instagramteufel. """
 
     prompt = st.text_area('Enter your prompt', default_prompt)
 
