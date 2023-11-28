@@ -29,8 +29,8 @@ def read_frames_from_video(path_to_video):
     return base64Frames
 
 def generate_text_from_frames(path_to_video, base64Frames):
-
-    client = OpenAI()
+    api_key = st.secrets["openai"]["OPENAI_API_KEY"]
+    client = OpenAI(api_key=api_key)
     # Get the audio from the video
     audio = AudioFileClip(path_to_video)
     audio.write_audiofile("speech.mp3")
