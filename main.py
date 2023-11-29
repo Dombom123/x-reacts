@@ -234,8 +234,8 @@ def main():
 
 
     
-
-    uploaded_file = st.file_uploader("Choose a video file", type=['mp4'], key='video', help='Upload a video file')
+    st.subheader("Upload a video")
+    uploaded_file = st.file_uploader("Choose a video file", type=['mp4'], key='video', help='Upload a video file to get a reaction video')
 
     if st.button('Start generating') and uploaded_file is not None:
         with open('temp_video.mp4', 'wb') as f:
