@@ -228,7 +228,7 @@ def main():
     }
     default_prompt = """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, ein fieser und witziger Instagramteufel. """
 
-    prompt = st.selectbox("Prompt Sleection:", list(prompts.keys()))
+    prompt = st.selectbox("Prompt Selection:", list(prompts.keys()))
     if prompt == "Custom":
         prompt = st.text_area('Enter your prompt', default_prompt)
 
