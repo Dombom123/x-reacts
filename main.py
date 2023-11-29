@@ -221,7 +221,7 @@ def main():
 
 
     # drop down menu
-    st.subheader("Choose a prompt")
+    st.subheader("Step 1: Choose a prompt")
     prompts = {
         "Default": """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, ein fieser und witziger Instagramteufel. """,
         "Custom": """Wir spielen ein Rollenspiel. Sag einen Satz zu den Bildern als wärst du Satan, ein fieser und witziger Instagramteufel. """,
@@ -234,7 +234,7 @@ def main():
 
 
     
-    st.subheader("Upload a video")
+    st.subheader("Step 2: Upload a video")
     uploaded_file = st.file_uploader("Choose a video file", type=['mp4'], key='video', help='Upload a video file to get a reaction video')
 
     if st.button('Start generating') and uploaded_file is not None:
