@@ -17,7 +17,46 @@ X-Reacts is a video processing tool using AI, ideal for transforming videos into
 - moviepy
 
 ## Installation
-```bash
 git clone [repository URL]
 cd [repository directory]
 pip install -r requirements.txt
+
+## Environment Setup
+To run the application, you need to set up your API keys. Rename the provided `secrets.toml.example` file to `secrets.toml` and insert your OpenAI and D-ID API keys:
+
+# secrets.toml
+
+[openai]
+OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"
+
+[d-id]
+authorization = "YOUR_D-ID_AUTHORIZATION_KEY"
+
+Make sure to replace `YOUR_OPENAI_API_KEY` and `YOUR_D-ID_AUTHORIZATION_KEY` with your actual API keys.
+
+## Usage
+1. Run `streamlit run app.py` in the terminal.
+2. Upload a video through the web interface.
+3. Choose or input a prompt.
+4. Click 'Start generating' to process the video.
+
+## How It Works
+- Reads and processes video frames.
+- Transcribes audio and generates text based on frames and prompts.
+- Converts text to speech and generates avatars.
+- Assembles the final video by combining original and generated content.
+
+## Contributing
+Contributions are welcome. Please follow these steps:
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/YourFeature`)
+3. Commit your Changes (`git commit -m 'Add some YourFeature'`)
+4. Push to the Branch (`git push origin feature/YourFeature`)
+5. Open a Pull Request
+
+## License
+This project is under the MIT License.
+
+## Contact
+- Your Name - [email@example.com]
