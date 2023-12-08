@@ -58,5 +58,3 @@ Contributions are welcome. Please follow these steps:
 ## License
 This project is under the MIT License.
 
-## Contact
-- Your Name - [email@example.com]
