@@ -4,6 +4,9 @@
 ## Introduction
 X-Reacts is a video processing tool using AI, ideal for transforming videos into more engaging content. This tool integrates various APIs for audio transcription, text generation, avatar creation, and video editing.
 
+## Live Demo
+https://www.x-reacts.streamlit.app
+
 ## Features
 - Video Transcription using OpenAI's GPT-4
 - Text-to-Speech via OpenAI
