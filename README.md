@@ -1,4 +1,5 @@
 # X-Reacts: AI Video Processing
+<img width="883" alt="header" src="https://github.com/Dombom123/x-reacts/assets/99609753/462c8840-f401-4744-b301-36cac88c61e2">
 
 ## Introduction
 X-Reacts is a video processing tool using AI, ideal for transforming videos into more engaging content. This tool integrates various APIs for audio transcription, text generation, avatar creation, and video editing.
