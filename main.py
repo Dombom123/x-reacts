@@ -9,6 +9,7 @@ from moviepy.editor import VideoFileClip, CompositeVideoClip, AudioFileClip, con
 import numpy as np
 import streamlit as st
 from PIL import Image
+from edit_video import assemble_video
 
 def read_frames_from_video(path_to_video):
     # Check if the video file exists
@@ -204,41 +205,6 @@ def upload_audio_to_did(audio_path):
     response = requests.post(url, files=files, headers=headers)
     return response.json()["url"]
 
-
-
-
-def assemble_video(gen_path, original_video_path, audio_path):
-
-    # Load the original video, the avatar video, and the audio
-    original_video = VideoFileClip(original_video_path)
-    avatar_video = VideoFileClip(gen_path)
-    audio = AudioFileClip(audio_path)
-
-    # Lower the volume of the original video
-    original_video = original_video.volumex(0.1)  # Adjust the volume level as needed
-
-    # Check if the avatar video is longer than the original video
-    if avatar_video.duration > original_video.duration:
-        # Calculate how many times the original video needs to be repeated
-        repeat_times = int(np.ceil(avatar_video.duration / original_video.duration))
-        # Repeat the original video
-        original_video = concatenate_videoclips([original_video] * repeat_times)
-
-    # Make the original video loop for the full length of the avatar video
-    original_video = original_video.loop(duration=avatar_video.duration)
-
-    # Resize the avatar video to the desired size and position it at the bottom right corner
-    avatar_video = avatar_video.resize(height=original_video.h // 4).set_position(('right', 'bottom'))
-
-    # Overlay the avatar video on the original video
-    composite_video = CompositeVideoClip([original_video, avatar_video])
-
-    # Set the audio of the composite video to the audio from audio.mp3
-    composite_video = composite_video.set_audio(audio)
-
-    # Write the final video to a file
-    composite_video.write_videofile('data/final.mp4')
-
 def generate_text_for_video(uploaded_file, prompt, progress_bar):
     with open('data/temp_video.mp4', 'wb') as f:
         f.write(uploaded_file.read())
@@ -281,8 +247,19 @@ def main():
 
     st.subheader("Step 1: Select a prompt")
     prompts = {
-        "Default": "Du schreibst witzige Kommentare zu Tik Tok Videos in weniger als 5 Sätzen.",
-        "Custom": "Du schreibst witzige Kommentare zu Tik Tok Videos in weniger als 5 Sätzen."
+"Default": 
+"""Du schreibst witzige Kommentare zu Tik Tok Videos in weniger als 5 Sätzen.Du bist der Teufel.
+Du bist sarkastisch und hast starke, kontroverse Meinungen.
+Nachdem du Jahrzehntelang in der Hölle warst, bist du nun an die Erdoberfläche gelangt.
+Du versuchst, die moderne Gesellschaft zu verstehen, es fällt dir aber schwer.
+Du liebst es zu sündigen und andere zum sündigen zu verleiten.""",
+"Custom": 
+"""Du schreibst witzige Kommentare zu Tik Tok Videos in weniger als 5 Sätzen.
+Du bist der Teufel.
+Du bist sarkastisch und hast starke, kontroverse Meinungen.
+Nachdem du Jahrzehntelang in der Hölle warst, bist du nun an die Erdoberfläche gelangt.
+Du versuchst, die moderne Gesellschaft zu verstehen, es fällt dir aber schwer.
+Du liebst es zu sündigen und andere zum sündigen zu verleiten."""
     }
     prompt_selection = st.selectbox("Prompt Selection:", list(prompts.keys()))
     if prompt_selection == "Custom":
