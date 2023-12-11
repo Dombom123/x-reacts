@@ -26,7 +26,7 @@ payload = {
 headers = {
     "accept": "application/json",
     "content-type": "application/json",
-    "authorization": "Basic YUdGdWJtVnpRR1J5YVhabFltVjBZUzVrWlE6THp3WUcyVXhwVTQzUzhKZXluaHA3"
+   # deleted api key
 }
 
 response = requests.post(url, json=payload, headers=headers)
