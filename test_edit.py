@@ -38,12 +38,12 @@ def assemble_video(gen_path, original_video_path, audio_path):
         clips.append(clip)
 
     final_clip = concatenate_videoclips(clips, method="compose")
-    final_clip.write_videofile('final.mp4', codec='libx264', audio_codec='aac')
+    final_clip.write_videofile('data/final.mp4', codec='libx264', audio_codec='aac')
 
 def main():
-    gen_path = "avatar.mp4"
+    gen_path = "data/avatar.mp4"
     original_video_path = "data/input.mp4"
-    audio_path = "audio.mp3"
+    audio_path = "data/audio.mp3"
     assemble_video(gen_path, original_video_path, audio_path)
 
 if __name__ == "__main__":

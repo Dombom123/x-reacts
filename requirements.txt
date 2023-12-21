@@ -4,4 +4,7 @@ moviepy
 numpy
 streamlit
 openai
+replicate
+pandas
+```
 
