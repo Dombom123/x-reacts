@@ -73,27 +73,16 @@ def assemble_video(gen_path, original_video_path, audio_path):
     # Define intervals
     intervals = [(i, min(i+3, avatar_video.duration)) for i in range(0, int(avatar_video.duration), 3)]
     clips = []
-    # print(TextClip.list('font'))
-    # Create a text clip
-    # txt_clip = TextClip("Reactions from Hell", fontsize=60, font='Helvetica-Neue-Condensed-Bold', color='white', bg_color='black')
-    # txt_clip = txt_clip.set_pos('center').set_duration(3)  # Set duration to match first clip
 
-    # # Overlay the text clip on the first video clip
-    # first_clip_func, first_clip_params = sequence_patterns[0]
-    # first_clip = first_clip_func(avatar_video.subclip(0, 3), original_video.subclip(0, 3), **first_clip_params)
-    # first_clip_with_text = CompositeVideoClip([first_clip, txt_clip])
-
-    # # Replace the first clip in the sequence with the new clip with text
-    # clips = [first_clip_with_text]
-
-    # Iterate over the remaining intervals and sequence patterns
-    for i, (start, end) in enumerate(intervals):  # Start from the second interval
-        func, params = sequence_patterns[(i + 1) % len(sequence_patterns)]
+    # Iterate over the intervals and sequence patterns
+    for i, (start, end) in enumerate(intervals):
+        func, params = sequence_patterns[i % len(sequence_patterns)]
         clip = func(avatar_video.subclip(start, end), original_video.subclip(start, end), **params)
         clips.append(clip)
 
     final_clip = concatenate_videoclips(clips, method="compose")
     final_clip.write_videofile('data/final.mp4', codec='libx264', audio_codec='aac')
+
 def main():
     gen_path = "data/avatar.mp4"
     original_video_path = "data/input.mp4"
