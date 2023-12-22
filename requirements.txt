@@ -6,6 +6,7 @@ streamlit
 openai
 replicate
 pandas
-
+elevenlabs
+pydub
 
 
