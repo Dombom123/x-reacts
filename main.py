@@ -3,13 +3,35 @@ import cv2
 import base64
 import time
 import requests
-from openai import OpenAI
-from moviepy.editor import VideoFileClip, CompositeVideoClip, AudioFileClip, concatenate_videoclips
-
 import numpy as np
-import streamlit as st
 from PIL import Image
-from edit_video import assemble_video
+from pydub import AudioSegment
+from moviepy.editor import AudioFileClip
+
+import shutil
+import subprocess
+
+from openai import OpenAI
+from elevenlabs import generate, Voice, VoiceSettings,set_api_key
+import streamlit as st
+
+from utils.edit_video import assemble_video
+
+def download_video(url, output_path='data/input.mp4'):
+    if url:
+        try:
+            command = ['yt-dlp', '--force-overwrites', '-o', output_path, url]
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode == 0:
+                st.success('Download completed successfully.')
+                st.text(result.stdout.decode())  # Added for debugging
+            else:
+                st.error(f'Error: {result.stderr.decode()}')
+        except Exception as e:
+            st.error(f'An error occurred: {str(e)}')
+    else:
+        st.error('Please enter a valid URL.')
+    return output_path
 
 def read_frames_from_video(path_to_video):
     # Check if the video file exists
@@ -55,7 +77,7 @@ def generate_text_from_video(path_to_video):
     transcript = generate_transcript(path_to_video)
     video_length_in_seconds = len(base64Frames) / 30
     st.write(f"Video Length: {video_length_in_seconds} seconds")
-    max_frames = 2
+    max_frames = 10
     frame_divider = len(base64Frames) // max_frames
     st.write(f"Number of frames: {len(base64Frames)}")
     st.write(f"Number of frames to use: {max_frames}")
@@ -97,7 +119,7 @@ def generate_voiceover_from_text(prompt, text):
     params = {
         "model": "gpt-4",
         "messages": PROMPT_MESSAGES,
-        "max_tokens": 100,
+        "max_tokens": 150,
     }
     result = client.chat.completions.create(**params)
     st.subheader("Voiceover Text")
@@ -106,32 +128,39 @@ def generate_voiceover_from_text(prompt, text):
 
 
 def generate_audio_from_text(text):
-    api_key = st.secrets["openai"]["OPENAI_API_KEY"]
-    response = requests.post(
-        "https://api.openai.com/v1/audio/speech",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-        },
-        json={
-            "model": "tts-1-1106",
-            "input": text,
-            "voice": "onyx",
-        },
+    set_api_key(st.secrets["11"]["11LABS_API_KEY"])
+    audio = generate(
+        model='eleven_multilingual_v2',
+        text=text,
+        voice=Voice(
+            voice_id='qB21fQlUsqrLQbytfdqA',
+            settings=VoiceSettings(stability=0.5, similarity_boost=0.8, style=0.5, use_speaker_boost=True)
+        )
     )
-
-    audio = b""
-    for chunk in response.iter_content(chunk_size=1024 * 1024):
-        audio += chunk
-
     # Write audio bytes to a file
     with open('data/audio.mp3', 'wb') as f:
         f.write(audio)
         f.close()
-    print("Audio saved to audio.mp3")
-    st.write("Audio saved to audio.mp3")
-    filepath = 'data/audio.mp3'
 
-    return filepath
+    
+    print("Audio saved to audio.mp3")
+    # st.write("Audio saved to audio.mp3")
+    filepath = 'data/audio.mp3'
+    return filepath 
+
+def prepend_silence(audio_path, silence_duration):
+    audio_clip = AudioSegment.from_file(audio_path)
+    silent_segment = AudioSegment.silent(duration=silence_duration * 1000)
+    new_audio = silent_segment + audio_clip
+    new_audio.export(audio_path, format='mp3')
+
+def append_silence(audio_path, silence_duration):
+    audio_clip = AudioSegment.from_file(audio_path)
+    silent_segment = AudioSegment.silent(duration=silence_duration * 1000)
+    new_audio = audio_clip + silent_segment
+    new_audio.export(audio_path, format='mp3')
+
+
 
 def generate_video_from_audio(audio_url):
 
@@ -154,7 +183,7 @@ def generate_video_from_audio(audio_url):
             "pad_audio": "0.0",
             "stitch": True
         },
-        "source_url": "https://i.ibb.co/b6S8DYJ/Bildschirmfoto-2023-11-17-um-10-22-22-removebg-preview.png"
+        "source_url": "https://i.imgur.com/4b1cCxf.jpeg"
     }
     authorization = st.secrets["d-id"]["authorization"]
     headers = {
@@ -205,14 +234,27 @@ def upload_audio_to_did(audio_path):
     response = requests.post(url, files=files, headers=headers)
     return response.json()["url"]
 
+
+
 def generate_text_for_video(uploaded_file, prompt, progress_bar):
-    with open('data/temp_video.mp4', 'wb') as f:
-        f.write(uploaded_file.read())
+    # Define the path for the temporary video file
+    path_to_video = 'data/temp_video.mp4'
+    
+    # Check if uploaded_file is a file-like object
+    if hasattr(uploaded_file, 'read'):
+        # File-like object from Streamlit's uploader
+        with open(path_to_video, 'wb') as f:
+            f.write(uploaded_file.read())
+    elif isinstance(uploaded_file, str):
+        # String (file path from YouTube download)
+        # Assuming the file already exists at the path, so just update the path
+        path_to_video = uploaded_file
+    else:
+        raise ValueError("Invalid input type for uploaded_file")
+
     progress_bar.progress(10)
 
-    path_to_video = 'data/temp_video.mp4'
-    progress_bar.progress(15)
-
+    # Rest of your processing logic...
     vision_text = generate_text_from_video(path_to_video)
     voiceover_text = generate_voiceover_from_text(prompt, vision_text)
 
@@ -220,11 +262,14 @@ def generate_text_for_video(uploaded_file, prompt, progress_bar):
 
     return voiceover_text, path_to_video
 
+
 def process_video_with_text(text, path_to_video, progress_bar):
     audio_path = generate_audio_from_text(text)
     progress_bar.progress(30)
     # Wait for 5 seconds
-    time.sleep(5)
+    # time.sleep(5)
+    prepend_silence(audio_path, 6)
+    append_silence(audio_path, 0.5)
 
     audio_url = upload_audio_to_did(audio_path)
     progress_bar.progress(50)
@@ -269,9 +314,26 @@ Du liebst es zu sündigen und andere zum sündigen zu verleiten."""
 
     st.subheader("Step 2: Upload a video")
     uploaded_file = st.file_uploader("Choose a video file:", type=['mp4'], key='video')
+    url = st.text_input('Enter the video URL here:')
+    
     # Toggle for activating video generation
     is_generation_activated = st.toggle('Activate Video Generation')
 
+    if st.button('Download Video from URL'):
+        with st.spinner('Downloading video...'):
+            bar = st.progress(5)
+            path_to_video = download_video(url)
+        with st.spinner('Generating text...'):
+            text, path_to_video = generate_text_for_video(path_to_video, prompt, bar)
+            st.success('Text generated!')
+        with st.spinner('Processing the video...'):
+            video_file = process_video_with_text(text, path_to_video, bar)
+            st.success('Done!')
+            st.subheader("Generated Video")
+            display_video(video_file)
+
+
+        
     # Button to start generating
     if st.button('Start generating'):
         # Check if the toggle is activated and a file is uploaded
