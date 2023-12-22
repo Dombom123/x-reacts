@@ -8,8 +8,7 @@ pandas
 elevenlabs
 pydub
 yt-dlp
-ImageMagic
-
+ImageMagick
 
 
 
