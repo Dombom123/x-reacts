@@ -8,9 +8,8 @@ pandas
 elevenlabs
 pydub
 yt-dlp
+ImageMagic
 
-ffmpeg-python
-ffmpeg
 
 
 
