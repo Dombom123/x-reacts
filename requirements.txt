@@ -1,12 +1,21 @@
-opencv-python-headless
-requests
-moviepy
-numpy
 streamlit
 openai
 replicate
+opencv-python-headless
+moviepy
+numpy
 pandas
 elevenlabs
 pydub
+yt-dlp
+
+ffmpeg-python
+ffmpeg
+
+
+
+
+
+
 
 
