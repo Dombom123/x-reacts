@@ -113,7 +113,7 @@ def generate_voiceover_from_text(prompt, text):
         },
         {
             "role": "user",
-            "content": f"Hier ist die Zusammenfassung des Videos: {text}."
+            "content": f"Generiere einen kurzen Kommentar zu dem Video. Antwortschema: <Kommentar in 3-4 Sätzen>. Kein Prefix oder Überschrift. Hier ist die Zusammenfassung des Videos: {text}. Jetzt kommt dein Kommentar:"
         },
     ]
     params = {
