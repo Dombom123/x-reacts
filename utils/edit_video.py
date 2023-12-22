@@ -75,19 +75,19 @@ def assemble_video(gen_path, original_video_path, audio_path):
     clips = []
     # print(TextClip.list('font'))
     # Create a text clip
-    txt_clip = TextClip("Reactions from Hell", fontsize=60, font='Helvetica-Neue-Condensed-Bold', color='white', bg_color='black')
-    txt_clip = txt_clip.set_pos('center').set_duration(3)  # Set duration to match first clip
+    # txt_clip = TextClip("Reactions from Hell", fontsize=60, font='Helvetica-Neue-Condensed-Bold', color='white', bg_color='black')
+    # txt_clip = txt_clip.set_pos('center').set_duration(3)  # Set duration to match first clip
 
-    # Overlay the text clip on the first video clip
-    first_clip_func, first_clip_params = sequence_patterns[0]
-    first_clip = first_clip_func(avatar_video.subclip(0, 3), original_video.subclip(0, 3), **first_clip_params)
-    first_clip_with_text = CompositeVideoClip([first_clip, txt_clip])
+    # # Overlay the text clip on the first video clip
+    # first_clip_func, first_clip_params = sequence_patterns[0]
+    # first_clip = first_clip_func(avatar_video.subclip(0, 3), original_video.subclip(0, 3), **first_clip_params)
+    # first_clip_with_text = CompositeVideoClip([first_clip, txt_clip])
 
-    # Replace the first clip in the sequence with the new clip with text
-    clips = [first_clip_with_text]
+    # # Replace the first clip in the sequence with the new clip with text
+    # clips = [first_clip_with_text]
 
     # Iterate over the remaining intervals and sequence patterns
-    for i, (start, end) in enumerate(intervals[1:]):  # Start from the second interval
+    for i, (start, end) in enumerate(intervals):  # Start from the second interval
         func, params = sequence_patterns[(i + 1) % len(sequence_patterns)]
         clip = func(avatar_video.subclip(start, end), original_video.subclip(start, end), **params)
         clips.append(clip)
